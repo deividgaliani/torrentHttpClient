@@ -10,14 +10,18 @@ public class TorrentHttpClient {
 	
 	private String url;
 	
+	/**
+	 * define a URL que será acessada para extrair o conteúdo
+	 * @param url
+	 */
 	public TorrentHttpClient(String url) {
 		this.url = url;
 	}
 
-	/** Marcação inicial para extrair magnectlink */
+	/** Marcação inicial para extrair magnet link */
     private final static String MARCA_INICIAL = "<a href=\"magnet:";
   
-    /** Marcação final para extrair as dezenas do retorno HTML. */
+    /** Marcação final */
     private final static String MARCA_FINAL = "</a>";
     
     public String obterMagnetLink() {
