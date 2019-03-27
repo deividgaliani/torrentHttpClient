@@ -32,12 +32,11 @@ public class TorrentHttpClient {
         	HttpGet httpget = new HttpGet(getUrl());
         	// Manipulador da resposta da conexão com a URL
         	ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            // Resposta propriamente dita
+            // Executa request
             String html = httpclient.execute(httpget, responseHandler);
-            //Retorno das dezenas, após tratamento
+            //Retorno do link, após tratamento
             return extrairMagnetLink(html);
           } catch (Exception e) {
-        	  // Caso haja erro, dispara exceção.
         	  throw new RuntimeException("Um erro inesperado ocorreu.", e);
           } finally {
         	  //Destruição do cliente para liberação dos recursos do sistema.
