@@ -1,8 +1,6 @@
 package service;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -13,7 +11,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 
 public class HttpClientService {
-	private HttpClient httpclient = HttpClients.createDefault();
+	private HttpClient httpclient;
+
+	public HttpClientService() {
+		httpclient = HttpClients.createDefault();
+	}
 
 	public HttpClient getHttpclient() {
 		return httpclient;
@@ -27,9 +29,9 @@ public class HttpClientService {
 		return new HttpGet(uri);
 	}
 	
-	public HttpEntity getContent(HttpClient httpClient, HttpGet httpGet) {
+	public HttpEntity getContent(HttpGet httpGet) {
 		try {
-			HttpResponse response = httpClient.execute(httpGet);
+			HttpResponse response = this.httpclient.execute(httpGet);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				return response.getEntity();
 			}
