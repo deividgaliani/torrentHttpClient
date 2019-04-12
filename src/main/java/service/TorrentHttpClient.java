@@ -1,5 +1,8 @@
 package service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -11,10 +14,12 @@ public class TorrentHttpClient {
 	
 	private String url;
 	
-	/**
-	 * define a URL que sera acessada para extrair o conteudo
-	 * @param url
-	 */
+    private	String html;
+    
+    private List<String> magnetLinks = new ArrayList<String>();
+    
+	
+	/** @param url -> define a URL que sera acessada para extrair o conteudo */
 	public TorrentHttpClient(String url) {
 		this.url = url;
 	}
@@ -25,40 +30,49 @@ public class TorrentHttpClient {
     /** Marcacao final */
     private final static String MARCA_FINAL = "\"";
     
-    public String obterMagnetLink() {
-    	//Criacao do cliente HTTP que fara a conexao com o site
+    public List<String> obterMagnetLink() {
+    	/**Criacao do cliente HTTP que fara a conexao com o site*/
         HttpClient httpclient = HttpClients.createDefault();
         try {
-        	// Definicao da URL a ser utilizada
+        	/** Definicao da URL a ser utilizada*/
         	HttpGet httpget = new HttpGet(getUrl());
-        	// Manipulador da resposta da conexao com a URL
+        	/** Manipulador da resposta da conexao com a URL*/
         	ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            // Executa request
-            String html = httpclient.execute(httpget, responseHandler);
-            //Retorno do link, apos tratamento
-            return extrairMagnetLink(html);
+            /** Executa request*/
+            this.html = httpclient.execute(httpget, responseHandler);
+            System.out.println(this.html);
+            Integer posicaoEntrada = 0;
+            while (extrairMagnetLink(posicaoEntrada)) {}
           } catch (Exception e) {
-        	  throw new RuntimeException("Um erro inesperado ocorreu.", e);
+        	  System.err.println(e.getMessage());
           } finally {
-        	  //Destruicao do cliente para liberacao dos recursos do sistema.
+        	  /**Destruicao do cliente para liberacao dos recursos do sistema.*/
         	  httpclient.getConnectionManager().shutdown();
           }
+		return magnetLinks;
     }
     
-    private String extrairMagnetLink(String html) {
-    	System.err.println(html);
-    	// Posicao inicial de onde comeca o magnet link ( + 6 para remover href=" )
-        Integer parteInicial = html.indexOf(MARCA_INICIAL) + 6;
-        // Posicaoo final do magnet link
-        //searchIndex = preIndex + string.substring(preIndex).indexOf(searchString);
-        Integer parteFinal = parteInicial + html.substring(parteInicial).indexOf(MARCA_FINAL);
+    /**
+     *metodo responsavel por extrair a informacao da pagina
+     * @param initPos posicao minima de busca na pagina
+     * @return
+     */
+    private boolean extrairMagnetLink(Integer initPos) {
+    	/** Posicao inicial de onde comeca o magnet link ( + 6 para remover href=" )*/
+        Integer parteInicial = this.html.indexOf(MARCA_INICIAL) + 6;
+        if (parteInicial < 0) {
+        	throw new RuntimeException("Nenhum link encontrado");
+        }
+        /** Posicao final do magnet link*/
+        Integer parteFinal = parteInicial + this.html.substring(parteInicial).indexOf(MARCA_FINAL);
 //        Integer parteFinal = html.indexOf(MARCA_FINAL);
         if(parteFinal < parteInicial) {
-        	return "Erro ao tentar encontrar link";
+        	return false;
         }
-        // Substring montada com base nas posicoes, com remocao de espacos.
-        String extracao = html.substring(parteInicial, parteFinal);
-        return extracao;
+        /** Substring montada com base nas posicoes, com remocao de espacos.
+         * adiciona na lista de links*/
+        this.magnetLinks.add( this.html.substring(parteInicial, parteFinal));
+        return true;
     }
 
 	public String getUrl() {
@@ -68,6 +82,13 @@ public class TorrentHttpClient {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
-	
+
+	public List<String> getMagnetLinks() {
+		return magnetLinks;
+	}
+
+	public void setMagnetLinks(List<String> magnetLinks) {
+		this.magnetLinks = magnetLinks;
+	}
+		
 }
