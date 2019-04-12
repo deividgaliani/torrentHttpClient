@@ -12,8 +12,12 @@ public class Principal {
 		String url = JOptionPane.showInputDialog("Insira a URL a ser buscada");
 		TorrentHttpClient torrentClient = new TorrentHttpClient(url);
 		List<String> listaLinks = torrentClient.obterMagnetLink();
-		for (String link : listaLinks) {
-			System.out.println(link);
+		if(!listaLinks.isEmpty()) {
+			for (String link : listaLinks) {
+				System.out.println(link);
+			}
+		}else {
+			System.out.println("Nenhum link encontrado");
 		}
 	}
 

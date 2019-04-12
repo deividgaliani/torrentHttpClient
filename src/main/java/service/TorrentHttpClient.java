@@ -66,8 +66,8 @@ public class TorrentHttpClient {
             /** Substring montada com base nas posicoes, com remocao de espacos.
              * adiciona na lista de links*/
             initPos = parteInicial;
-            html.replaceFirst(MARCA_INICIAL, "----------");
             listaLinks.add( html.substring(parteInicial, parteFinal));
+            html = html.replaceFirst(MARCA_INICIAL, "");
     	}
     	
         return listaLinks;
