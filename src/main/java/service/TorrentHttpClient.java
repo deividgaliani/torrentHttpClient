@@ -12,12 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 
 public class TorrentHttpClient {
 	
-	private String url;
-	
-    private	String html;
-    
-    private List<String> magnetLinks = new ArrayList<String>();
-    
+	private String url;   
 	
 	/** @param url -> define a URL que sera acessada para extrair o conteudo */
 	public TorrentHttpClient(String url) {
@@ -39,17 +34,16 @@ public class TorrentHttpClient {
         	/** Manipulador da resposta da conexao com a URL*/
         	ResponseHandler<String> responseHandler = new BasicResponseHandler();
             /** Executa request*/
-            this.html = httpclient.execute(httpget, responseHandler);
-            System.out.println(this.html);
-            Integer posicaoEntrada = 0;
-            while (extrairMagnetLink(posicaoEntrada)) {}
+            String html = httpclient.execute(httpget, responseHandler);
+            System.out.println(html);
+            return obterListaMagnetLink(html);
           } catch (Exception e) {
         	  System.err.println(e.getMessage());
+        	  return new ArrayList<String>();
           } finally {
         	  /**Destruicao do cliente para liberacao dos recursos do sistema.*/
         	  httpclient.getConnectionManager().shutdown();
           }
-		return magnetLinks;
     }
     
     /**
@@ -57,22 +51,26 @@ public class TorrentHttpClient {
      * @param initPos posicao minima de busca na pagina
      * @return
      */
-    private boolean extrairMagnetLink(Integer initPos) {
-    	/** Posicao inicial de onde comeca o magnet link ( + 6 para remover href=" )*/
-        Integer parteInicial = this.html.indexOf(MARCA_INICIAL) + 6;
-        if (parteInicial < 0) {
-        	throw new RuntimeException("Nenhum link encontrado");
-        }
-        /** Posicao final do magnet link*/
-        Integer parteFinal = parteInicial + this.html.substring(parteInicial).indexOf(MARCA_FINAL);
-//        Integer parteFinal = html.indexOf(MARCA_FINAL);
-        if(parteFinal < parteInicial) {
-        	return false;
-        }
-        /** Substring montada com base nas posicoes, com remocao de espacos.
-         * adiciona na lista de links*/
-        this.magnetLinks.add( this.html.substring(parteInicial, parteFinal));
-        return true;
+    private List<String> obterListaMagnetLink(String html) {
+    	Integer initPos = 0;
+    	List<String>listaLinks = new ArrayList<String>();
+    	while(html.contains(MARCA_INICIAL)) {
+    		/** Posicao inicial de onde comeca o magnet link ( + 6 para remover href=" )*/
+            Integer parteInicial = html.indexOf(MARCA_INICIAL, initPos) + 6;
+            if (parteInicial < 0) {
+            	throw new RuntimeException("Nenhum link encontrado");
+            }
+            /** Posicao final do magnet link*/
+            Integer parteFinal = parteInicial + html.substring(parteInicial).indexOf(MARCA_FINAL);
+//            Integer parteFinal = html.indexOf(MARCA_FINAL);
+            /** Substring montada com base nas posicoes, com remocao de espacos.
+             * adiciona na lista de links*/
+            initPos = parteInicial;
+            html.replaceFirst(MARCA_INICIAL, "----------");
+            listaLinks.add( html.substring(parteInicial, parteFinal));
+    	}
+    	
+        return listaLinks;
     }
 
 	public String getUrl() {
@@ -81,14 +79,6 @@ public class TorrentHttpClient {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-
-	public List<String> getMagnetLinks() {
-		return magnetLinks;
-	}
-
-	public void setMagnetLinks(List<String> magnetLinks) {
-		this.magnetLinks = magnetLinks;
 	}
 		
 }
