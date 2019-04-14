@@ -19,17 +19,15 @@ public class TorrentHttpClient {
 		this.url = url;
 	}
 
-//	/** Marcacao inicial para extrair magnet link */
-//    private final static String MARCA_INICIAL = "href=\"magnet:";
-//  
-//    /** Marcacao final */
-//    private final static String MARCA_FINAL = "\"";
+	/** Marcacao inicial para extrair magnet link */
+    private final static String MARCA_INICIAL = "href=\"magnet:";
+  
+    /** Marcacao final */
+    private final static String MARCA_FINAL = "\"";
     
     public List<String> obterMagnetLinks(){
     	String html = httpGet();
-    	String marcaIncial = "href=\"magnet:";
-    	String marcaFinal = "\"";
-    	return extrairConteudoPagina(html, marcaIncial, marcaFinal);
+    	return extrairConteudoPagina(html, MARCA_INICIAL, MARCA_FINAL);
     }
     
     /**
@@ -58,7 +56,7 @@ public class TorrentHttpClient {
     }
     
     /**
-     *metodo responsavel por extrair a informacao da pagina
+     *metodo responsavel por extrair informacao da pagina
      * @param initPos posicao minima de busca na pagina
      * @param marcaInicial marcacao inicial de um trecho a ser buscado no html
      * @param marcaFinal marcacao final de um trecho a ser buscado no html
